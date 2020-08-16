@@ -8,6 +8,12 @@ class MainClass {
 		Computer
 	}
 
+  enum MarkType
+  {
+    CROSS,
+    NOUGHT
+  }
+
   public static void Main (string[] args) {
 
 		GamePrint.Box("Tic, Tac, Toe");
@@ -17,6 +23,20 @@ class MainClass {
 
 		PlayerType player2Type = GetPlayerType();
 		string player2Name = GetPlayerName(player2Type);
+
+    MarkType player1Mark = MarkType.CROSS;
+    MarkType player2Mark = MarkType.NOUGHT;
+
+    if(GameRandom.Event())
+    {
+      player1Mark = MarkType.NOUGHT;
+      player2Mark = MarkType.CROSS;
+    }
+
+    GamePrint.Message(player1Name + ": " + player1Mark);
+    GamePrint.Message(player2Name + ": " + player2Mark);
+
+    
   }
 
 	private static PlayerType GetPlayerType()
