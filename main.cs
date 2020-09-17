@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Text;
 
 class MainClass {
 
   private const string MARK_NOUGHT = "O";
   private const string MARK_CROSS = "X";
+
+  private const ConsoleColor COLOR_NOUGHT = ConsoleColor.Blue;
+  private const ConsoleColor COLOR_CROSS = ConsoleColor.Red;
 
 	enum PlayerType
 	{
@@ -45,16 +49,43 @@ class MainClass {
     // Create game board.
     string[] cells = new string[9];
 
-    // Game loop.
+    // Game loop.    
+    bool player1Even = false;
+    if(GameRandom.Event())
+    {
+      player1Even = true;
+    }
+
     int roundNumber = 0;
     while(roundNumber < 9) 
     {
       ShowBoard(cells);
 
+      int[] emptyCells = GetEmptyCells(cells);
+      int targetCell = -1;
+
+      MarkType markType = MarkType.CROSS;
+
+      bool evenRound = roundNumber % 2 == 0;
+      if(evenRound == player1Even)
+      {
+        targetCell = GetPlayerInput(player1Name, player1Type, emptyCells);
+        markType = player1Mark;
+      }
+      else
+      {
+        targetCell = GetPlayerInput(player2Name, player2Type, emptyCells);
+        markType = player2Mark;
+      }
+
+      Console.ForegroundColor = markType == MarkType.CROSS ? COLOR_CROSS : COLOR_NOUGHT;
+      cells[targetCell] = markType == MarkType.CROSS ? MARK_CROSS : MARK_NOUGHT;
+
       roundNumber++;
     }
   }
 
+  // Create players
 	private static PlayerType GetPlayerType()
 	{
 		GamePrint.Input("New Player\n1.Human\n2.Computer");
@@ -72,7 +103,8 @@ class MainClass {
 		string playerName = GameInput.Text();
 		return playerName;
 	}
-
+  
+  // Round
   private static void ShowBoard(string[] cells)
   {
     Console.Write("\n\n");
@@ -89,7 +121,7 @@ class MainClass {
         }
         else 
         {
-          Console.ForegroundColor = cell == MARK_CROSS ? ConsoleColor.Red : ConsoleColor.Blue;
+          Console.ForegroundColor = cell == MARK_CROSS ? COLOR_CROSS : COLOR_NOUGHT;
           Console.Write(cells[i]);
         }
 
@@ -108,5 +140,58 @@ class MainClass {
       }
 
       Console.Write("\n");
+  }
+  private static int[] GetEmptyCells(string[] cells)
+  {
+    int count = 0;
+    
+    for (int i = 0; i < cells.Length; i++)
+    {
+      if(cells[i] != null)
+      {
+        continue;
+      }
+      count++;
+    }
+
+    int[] emptyCells = new int[count];
+    int current = 0;
+    for (int i = 0; i < emptyCells.Length; i++)
+    {
+      if(cells[i] != null)
+      {
+        continue;
+      }
+
+      emptyCells[current] = i;
+      current++;
+    }
+
+    return emptyCells;
+  }
+
+  private static int GetPlayerInput(string playerName, PlayerType playerType, int[] emptyCells)
+  {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < emptyCells.Length; i++)
+    {
+        builder.AppendLine(emptyCells[i].ToString());
+    }
+
+    int cellNumber = -1;
+    switch(playerType)
+    {
+      case PlayerType.Human:
+      GamePrint.Input(playerName + " pick where to place your mark:" + builder.ToString());
+      cellNumber = GameInput.Number(emptyCells);
+      break;
+
+      case PlayerType.Computer:
+      cellNumber = emptyCells[GameRandom.Number(0, emptyCells.Length)];
+      break;
+    }
+
+    GamePrint.Message(playerName + " picked cell number " + cellNumber);
+    return cellNumber;
   }
 }
