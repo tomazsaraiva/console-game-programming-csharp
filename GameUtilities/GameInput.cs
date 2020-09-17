@@ -53,7 +53,7 @@ public static class GameInput
 		Console.ForegroundColor = ConsoleColor.White;
 		return number;
 	}
-	public static string Text()
+	public static string Text(int maxLength = -1)
 	{
 		Console.ForegroundColor = INPUT_COLOR;
 
@@ -66,6 +66,11 @@ public static class GameInput
 				GamePrint.Error("Enter a valid text");
 				Console.ForegroundColor = INPUT_COLOR;
 			}
+      else if(maxLength != -1 && text.Length > maxLength)
+      {
+        GamePrint.Error("Enter a valid text (max length: " + maxLength + ")");
+				Console.ForegroundColor = INPUT_COLOR;
+      }
 			else break;
 		}
 
